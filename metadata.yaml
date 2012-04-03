@@ -1,0 +1,14 @@
+name: omgubuntu-wp
+summary: "WordPress is a full featured web blogging tool, OMG! Ubuntu! is a blog."
+description: |
+ WordPress is a full featured web blogging tool.
+ OMG! Ubuntu! is a blog using WordPress
+requires:
+  db:
+    interface: mysql
+provides:
+  website:
+    interface: http
+peers:
+  loadbalancer:
+    interface: reversenginx
