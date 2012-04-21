@@ -92,7 +92,7 @@ ini_set('url_rewriter.tags', '');
     'name' => '$database',
     'user' => '$user',
     'pass' => '$password',
-    'prefix' => '',
+    'prefix' => 'pf_',
 );
 
 \$db_url = \$drupal_db['type'] . '://' . \$drupal_db['user'] . ':' . \$drupal_db['pass'] . '@' . \$drupal_db['server'] . '/' . \$drupal_db['name'];
