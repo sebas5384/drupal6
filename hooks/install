@@ -1,12 +1,15 @@
 #!/bin/bash
+set -e
 
 add-apt-repository ppa:charmers/charm-helpers
+add-apt-repository ppa:nginx/stable
+#add-apt-repository ppa:ondrej/php5
 
-apt-get update && apt-get -y upgrade
-apt-get -y install mysql-client pwgen git-core php-pear nginx php5 php5-fpm php-apc mailutils php-mail sysstat php5-mysql php5-mcrypt charm-helper-sh s3cmd php5-curl rsync
+apt-get -qqy update && apt-get -qqy dist-upgrade
+apt-get -y install mysql-client pwgen git-core php-pear nginx php5 php5-fpm php-apc mailutils php-mail sysstat php5-mysql php5-mcrypt charm-helper-sh php5-curl rsync
 
 rm -f /etc/cron.d/php5
-mv files/php/php_conf.d_apc.ini /etc/php5/conf.d/
+install -o root -g root -m 0644 files/php/php_conf.d_apc.ini /etc/php5/conf.d/apc.ini
 
 mkdir -p /mnt/tmp
 chmod 1777 /mnt/tmp
@@ -28,10 +31,19 @@ ln -sf /etc/nginx/sites-available/loadbalancer /etc/nginx/sites-enabled/loadbala
 rm -f /etc/php5/fpm/pool.d/*
 install -o root -g root -m 0644 files/php/php5-fpm_pool.d_www.conf /etc/php5/fpm/pool.d/www.conf
 
-rsync -avz /var/lib/nginx /mnt/ && rm -rf /var/lib/nginx && ln -s /mnt/nginx /var/lib/
-rsync -avz /var/lib/php5 /mnt/ && rm -rf /var/lib/php5 && ln -s /mnt/php5 /var/lib/
+if [ !-f /mnt/tmp/moved-var-lib ]; then
+  rsync -avz /var/lib/nginx /mnt/ && rm -rf /var/lib/nginx && ln -sf /mnt/nginx /var/lib/
+  rsync -avz /var/lib/php5 /mnt/ && rm -rf /var/lib/php5 && ln -sf /mnt/php5 /var/lib/
+  touch /mnt/tmp/moved-var-lib
+fi
+
+juju-log "Grabbing Drupal 6 (Pressflow)"
+git clone -o pressflow https://github.com/pressflow/6.git /var/www/drupal
+
+rsync -az files/drupal/ /var/www/drupal/
+juju-log "Drupal Themes, Modules, Libraries, from the charm copied into place."
 
 service php5-fpm restart
 service nginx restart
 
-juju-log "So, environment is setup. We'll wait for some hooks to fire off before we get all crazy"
+juju-log "So, environment is setup. Waiting for other hooks to fire as needed."

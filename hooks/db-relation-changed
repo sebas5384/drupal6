@@ -1,20 +1,10 @@
 #!/bin/bash
-
 set -eu
 
-juju-log "We've got a db"
 hostname=`unit-get public-address`
-private_name=`hostname -f`
-juju-log "Retrieved hostname: $hostname"
 
-# Check we haven't already been setup.
 drupal_install_path="/var/www/drupal"
 config_file_path="$drupal_install_path/sites/default/settings.php"
-
-if [ -f "$config_file_path" ]; then
-  juju-log "Drupal is already setup, just silently going away"
-  exit 0
-fi
 
 database=`relation-get database`
 user=`relation-get user`
@@ -29,11 +19,6 @@ fi
 secret_key=`pwgen 10 1`
 source "/usr/share/charm-helper/sh/net.sh"
 
-juju-log "Grabbing the latest stable Drupal"
-git clone -o pressflow https://github.com/pressflow/6.git /var/www/drupal
-
-juju-log "Dropping Custom Drupal Themes, Modules, Libraries, etc in to position"
-rsync -az files/drupal/ $drupal_install_path
 
 juju-log "Writing Drupal config file $config_file_path"
 # Write the Drupal config
@@ -108,11 +93,9 @@ juju-log "Enabling Nginx on $hostname"
 chown -R www-data.www-data $drupal_install_path
 
 # Restart nginx
-juju-log "Restarting nginx service"
+juju-log "Restarting web service"
 service php5-fpm restart
 service nginx restart
-
-# Make it publicly visible, once the wordpress service is exposed
 open-port 80/tcp
 open-port 8080/tcp
 

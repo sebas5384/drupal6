@@ -1,7 +1,6 @@
 #!/bin/sh
-
 set -ue
-rm -f /etc/default/s3cmd
+
 flush_opcode=`config-get flush-opcode-cache`
 
 if [ "$flush_opcode" = "True" ]; then
