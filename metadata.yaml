@@ -1,5 +1,6 @@
 name: drupal
 summary: Full Featured content management framework
+maintainer: Brandon Holtsclaw <me@brandonholtsclaw.com>
 description: |
  Drupal is a dynamic web site platform which allows an individual or
  community of users to publish, manage and organize a variety of
